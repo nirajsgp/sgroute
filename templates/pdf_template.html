@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Singapore Route Planner</title>
+    <style>
+        body { font-family: Arial, sans-serif; margin: 20px; }
+        h1 { text-align: center; color: #333; }
+        table { width: 100%; border-collapse: collapse; margin-top: 20px; }
+        table, th, td { border: 1px solid #333; }
+        th, td { padding: 8px; text-align: center; }
+        .green { background-color: #d4edda; }
+        .red { background-color: #f8d7da; }
+        .alt { background-color: #e2e3e5; }
+        footer { margin-top: 20px; font-size: small; text-align: center; color: #777; }
+    </style>
+</head>
+<body>
+    <h1>Singapore Route Planner</h1>
+    <table>
+        <thead>
+            <tr>
+                <th>Step</th>
+                <th>Postal Code</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for code in optimized_route %}
+                {% if loop.index == 1 %}
+                    <tr class="green">
+                {% elif loop.index == optimized_route|length %}
+                    <tr class="red">
+                {% else %}
+                    <tr class="{% if loop.index is even %}alt{% endif %}">
+                {% endif %}
+                    <td>{{ loop.index }}</td>
+                    <td>{{ code }}</td>
+                </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+    <footer>
+        <p>
+          Disclaimer: This tool is provided for planning purposes only. It does not guarantee financial savings or legal compliance. Use at your own risk.
+        </p>
+    </footer>
+</body>
+</html>

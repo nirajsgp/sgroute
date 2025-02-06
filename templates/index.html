@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Singapore Route Planner</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body>
+    <h1>Singapore Route Planner</h1>
+    {% with messages = get_flashed_messages() %}
+      {% if messages %}
+        <ul>
+          {% for message in messages %}
+            <li style="color:red;">{{ message }}</li>
+          {% endfor %}
+        </ul>
+      {% endif %}
+    {% endwith %}
+    
+    <form method="post">
+        <label for="start_point">Start Point (Optional):</label>
+        <input type="text" id="start_point" name="start_point" placeholder="6-digit postal code"><br><br>
+        
+        <label for="postal_codes">Postal Codes (comma separated, 2-15 required):</label>
+        <textarea id="postal_codes" name="postal_codes" rows="4" cols="50"
+            placeholder="e.g., 123456, 654321, 112233"></textarea><br><br>
+        
+        <label for="end_point">End Point (Optional):</label>
+        <input type="text" id="end_point" name="end_point" placeholder="6-digit postal code"><br><br>
+        
+        <!-- Captcha integration is on hold for now -->
+        <button type="submit">Optimize Route</button>
+    </form>
+</body>
+</html>

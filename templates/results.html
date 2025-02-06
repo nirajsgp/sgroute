@@ -1,0 +1,92 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Route Results</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+    <!-- Leaflet CSS -->
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.3/dist/leaflet.css" 
+          integrity="sha256-sA+e2vJf6szoF+YmuBM/dF1X9uPZdp6s9+7u7lX0n9w=" 
+          crossorigin=""/>
+</head>
+<body>
+    <h1>Singapore Route Planner</h1>
+    <p>Using API Provider: <strong>{{ provider }}</strong></p>
+    {% if start_point %}
+      <p>Start Point: {{ start_point }}</p>
+    {% endif %}
+    {% if end_point %}
+      <p>End Point: {{ end_point }}</p>
+    {% endif %}
+    
+    <!-- Map container -->
+    <div id="map" style="height: 400px;"></div>
+    
+    <table border="1" cellspacing="0" cellpadding="8">
+        <thead>
+            <tr>
+                <th>Step</th>
+                <th>Postal Code</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for code in optimized_route %}
+                {% if loop.index == 1 %}
+                    <tr style="background-color: #d4edda;">  <!-- Green for start -->
+                {% elif loop.index == optimized_route|length %}
+                    <tr style="background-color: #f8d7da;">  <!-- Red for end -->
+                {% else %}
+                    <tr style="background-color: {% if loop.index is even %}#e2e3e5{% else %}#ffffff{% endif %};">
+                {% endif %}
+                    <td>{{ loop.index }}</td>
+                    <td>{{ code }}</td>
+                </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+    
+    <!-- PDF Download Form: passes the optimized route as a hidden field -->
+    <form action="{{ url_for('download_pdf') }}" method="post">
+        <input type="hidden" name="optimized_route" value="{{ optimized_route | join(',') }}">
+        <button type="submit">Download as PDF</button>
+    </form>
+    
+    <br><br>
+    <a href="{{ url_for('index') }}">Plan Another Route</a>
+    
+    <!-- Leaflet JS -->
+    <script src="https://unpkg.com/leaflet@1.9.3/dist/leaflet.js" 
+            integrity="sha256-oM/i2n5G4wdTqkxUWh86p6JbFxNNl9LuAKeDEzexHIY=" 
+            crossorigin=""></script>
+    <script>
+        // Initialize the map centered on Singapore
+        var map = L.map('map').setView([1.3521, 103.8198], 12);
+        L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+            maxZoom: 19,
+            attribution: '© OpenStreetMap'
+        }).addTo(map);
+        
+        // route_coords passed from Flask as JSON
+        var routeCoords = {{ route_coords|tojson }};
+        
+        // Add markers for each postal code
+        routeCoords.forEach(function(point, index) {
+            var markerOptions = {};
+            if (index === 0) {
+                markerOptions = {color: 'green'};
+            } else if (index === routeCoords.length - 1) {
+                markerOptions = {color: 'red'};
+            } else {
+                markerOptions = {color: 'blue'};
+            }
+            var marker = L.circleMarker([point.lat, point.lng], {
+                radius: 8,
+                color: markerOptions.color,
+                fillColor: markerOptions.color,
+                fillOpacity: 0.8
+            }).addTo(map);
+            marker.bindPopup("Step " + (index + 1) + ": " + point.postal_code);
+        });
+    </script>
+</body>
+</html>
